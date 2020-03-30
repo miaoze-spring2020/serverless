@@ -12,7 +12,7 @@ public class EmailHandler implements RequestHandler<SNSEvent, String> {
 
     private static AWSCredential myCredential = new AWSCredential();
 
-    private static String HOSTNAME = "ShuaiBi@" + System.getenv("WEB_HOSTNAME");
+    private static String HOSTNAME = "csye6225@" + System.getenv("WEB_HOSTNAME");
 
     public String handleRequest(SNSEvent event, Context context) {
         String record = event.getRecords().get(0).getSNS().getMessage();
@@ -21,10 +21,10 @@ public class EmailHandler implements RequestHandler<SNSEvent, String> {
         String username = recordJson.getString("username");
         String bills = recordJson.getJSONArray("bills").toString();
 
-//        DynamoDBService dbService = new DynamoDBService();
-//        if (!dbService.existsItem(username)) {
+        DynamoDBService dbService = new DynamoDBService();
+        if (!dbService.existsItem(username)) {
         sendEmail(username, bills);
-//        }
+        }
         return null;
     }
 

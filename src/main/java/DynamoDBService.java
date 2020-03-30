@@ -24,7 +24,7 @@ public class DynamoDBService {
 
         try {
             Item item = new Item().withPrimaryKey("Username", username)
-                    .withLong("TTL", ut + expirationTimeSec)
+                    .withLong("Expiry", ut + expirationTimeSec)
                     .withJSON("Message", bills);
             table.putItem(item);
         } catch (Exception e) {
@@ -36,7 +36,7 @@ public class DynamoDBService {
         Table table = dynamoDB.getTable(tableName);
         try {
 
-            Item item = table.getItem("Username", username, "Username, TTL, Message", null);
+            Item item = table.getItem("Username", username, "Username, Expiry, Message", null);
             return item == null;
 
         } catch (Exception e) {
