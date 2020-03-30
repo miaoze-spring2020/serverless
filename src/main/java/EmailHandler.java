@@ -12,7 +12,7 @@ public class EmailHandler implements RequestHandler<SNSEvent, String> {
 
     private static AWSCredential myCredential = new AWSCredential();
 
-    private static String HOSTNAME = System.getenv("WEB_HOSTNAME");
+    private static String HOSTNAME = "ShuaiBi@" + System.getenv("WEB_HOSTNAME");
 
     public String handleRequest(SNSEvent event, Context context) {
         String record = event.getRecords().get(0).getSNS().getMessage();
@@ -21,33 +21,31 @@ public class EmailHandler implements RequestHandler<SNSEvent, String> {
         String username = recordJson.getString("username");
         String bills = recordJson.getJSONArray("bills").toString();
 
-        DynamoDBService dbService = new DynamoDBService();
-        if (!dbService.existsItem(username)) {
-            sendEmail(username, bills);
-        }
+//        DynamoDBService dbService = new DynamoDBService();
+//        if (!dbService.existsItem(username)) {
+        sendEmail(username, bills);
+//        }
         return null;
     }
 
     private void sendEmail(String username, String message) {
         try {
-            AmazonSimpleEmailService client =
-                    AmazonSimpleEmailServiceClientBuilder.standard()
-                            .withCredentials(new AWSStaticCredentialsProvider(myCredential.getCredentials()))
-                            .withRegion(myCredential.getRegion()).build();
-            SendEmailRequest request = new SendEmailRequest()
-                    .withDestination(
-                            new Destination().withToAddresses(username))
-                    .withMessage(new Message()
-                            .withBody(new Body()
-                                    .withHtml(new Content()
-                                            .withCharset("UTF-8").withData(message))
-                                    .withText(new Content()
-                                            .withCharset("UTF-8").withData(message)))
-                            .withSubject(new Content()
-                                    .withCharset("UTF-8").withData("Bills requested by you")))
-                    .withSource(HOSTNAME);
-            //configuration set not used
-            client.sendEmail(request);
+        AmazonSimpleEmailService client =
+                AmazonSimpleEmailServiceClientBuilder.standard()
+                        .withCredentials(new AWSStaticCredentialsProvider(myCredential.getCredentials()))
+                        .withRegion(myCredential.getRegion()).build();
+        SendEmailRequest request = new SendEmailRequest()
+                .withDestination(
+                        new Destination().withToAddresses(username))
+                .withMessage(new Message()
+                        .withBody(new Body()
+                                .withText(new Content()
+                                        .withCharset("UTF-8").withData(message)))
+                        .withSubject(new Content()
+                                .withCharset("UTF-8").withData("Bills requested by you")))
+                .withSource(HOSTNAME);
+        //configuration set not used
+        client.sendEmail(request);
         } catch (Exception e) {
             e.printStackTrace();
         }
