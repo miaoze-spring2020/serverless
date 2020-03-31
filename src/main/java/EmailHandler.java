@@ -12,6 +12,8 @@ public class EmailHandler implements RequestHandler<SNSEvent, String> {
 
     private static AWSCredential myCredential = new AWSCredential();
 
+    private static String HOSTNAME = "csye6225@" + System.getenv("WEB_HOSTNAME");
+
     public String handleRequest(SNSEvent event, Context context) {
         String record = event.getRecords().get(0).getSNS().getMessage();
         JSONObject recordJson = new JSONObject(new JSONTokener(new JSONObject(record).toString()));
@@ -21,6 +23,7 @@ public class EmailHandler implements RequestHandler<SNSEvent, String> {
 
         DynamoDBService dbService = new DynamoDBService();
         if (!dbService.existsItem(username)) {
+            dbService.createItem(username,bills);
             sendEmail(username, bills);
         }
         return null;
@@ -37,13 +40,11 @@ public class EmailHandler implements RequestHandler<SNSEvent, String> {
                             new Destination().withToAddresses(username))
                     .withMessage(new Message()
                             .withBody(new Body()
-                                    .withHtml(new Content()
-                                            .withCharset("UTF-8").withData(message))
                                     .withText(new Content()
                                             .withCharset("UTF-8").withData(message)))
                             .withSubject(new Content()
                                     .withCharset("UTF-8").withData("Bills requested by you")))
-                    .withSource("prod.zechuanmiao.me");
+                    .withSource(HOSTNAME);
             //configuration set not used
             client.sendEmail(request);
         } catch (Exception e) {

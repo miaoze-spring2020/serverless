@@ -1,6 +1,4 @@
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
@@ -26,7 +24,7 @@ public class DynamoDBService {
 
         try {
             Item item = new Item().withPrimaryKey("Username", username)
-                    .withLong("TTL", ut + expirationTimeSec)
+                    .withLong("Expiry", ut + expirationTimeSec)
                     .withJSON("Message", bills);
             table.putItem(item);
         } catch (Exception e) {
@@ -37,13 +35,11 @@ public class DynamoDBService {
     public boolean existsItem(String username) {
         Table table = dynamoDB.getTable(tableName);
         try {
-
-            Item item = table.getItem("Username", username, "Username, TTL, Message", null);
-            return item == null;
-
-        } catch (Exception e) {
+            Item item = table.getItem("Username", username);
+            return item != null;
+        }catch (Exception e){
             e.printStackTrace();
         }
-        return false;
+        return true;
     }
 }
