@@ -23,29 +23,30 @@ public class EmailHandler implements RequestHandler<SNSEvent, String> {
 
         DynamoDBService dbService = new DynamoDBService();
         if (!dbService.existsItem(username)) {
-        sendEmail(username, bills);
+            dbService.createItem(username,bills);
+            sendEmail(username, bills);
         }
         return null;
     }
 
     private void sendEmail(String username, String message) {
         try {
-        AmazonSimpleEmailService client =
-                AmazonSimpleEmailServiceClientBuilder.standard()
-                        .withCredentials(new AWSStaticCredentialsProvider(myCredential.getCredentials()))
-                        .withRegion(myCredential.getRegion()).build();
-        SendEmailRequest request = new SendEmailRequest()
-                .withDestination(
-                        new Destination().withToAddresses(username))
-                .withMessage(new Message()
-                        .withBody(new Body()
-                                .withText(new Content()
-                                        .withCharset("UTF-8").withData(message)))
-                        .withSubject(new Content()
-                                .withCharset("UTF-8").withData("Bills requested by you")))
-                .withSource(HOSTNAME);
-        //configuration set not used
-        client.sendEmail(request);
+            AmazonSimpleEmailService client =
+                    AmazonSimpleEmailServiceClientBuilder.standard()
+                            .withCredentials(new AWSStaticCredentialsProvider(myCredential.getCredentials()))
+                            .withRegion(myCredential.getRegion()).build();
+            SendEmailRequest request = new SendEmailRequest()
+                    .withDestination(
+                            new Destination().withToAddresses(username))
+                    .withMessage(new Message()
+                            .withBody(new Body()
+                                    .withText(new Content()
+                                            .withCharset("UTF-8").withData(message)))
+                            .withSubject(new Content()
+                                    .withCharset("UTF-8").withData("Bills requested by you")))
+                    .withSource(HOSTNAME);
+            //configuration set not used
+            client.sendEmail(request);
         } catch (Exception e) {
             e.printStackTrace();
         }

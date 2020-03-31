@@ -35,13 +35,11 @@ public class DynamoDBService {
     public boolean existsItem(String username) {
         Table table = dynamoDB.getTable(tableName);
         try {
-
-            Item item = table.getItem("Username", username, "Username, Expiry, Message", null);
-            return item == null;
-
-        } catch (Exception e) {
+            Item item = table.getItem("Username", username);
+            return item != null;
+        }catch (Exception e){
             e.printStackTrace();
         }
-        return false;
+        return true;
     }
 }
