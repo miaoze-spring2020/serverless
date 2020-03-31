@@ -31,6 +31,7 @@ jobs:
           command: |
             aws s3 cp ~/project/target/lambdaEmail.jar s3://$CODEDEPLOY_BUCKETNAME/ --profile circleci
             aws s3 cp ~/project/appspec.yml s3://$CODEDEPLOY_BUCKETNAME/ --profile circleci
+            aws lambda update-function-code --function-name  $FUNCTION_NAME --s3-bucket $CODEDEPLOY_APPNAME --s3-key lambdaEmail.jar --publish --profile circleci
       - run:
           name: create deploy
           command: aws deploy create-deployment --application-name $CODEDEPLOY_APPNAME --s3-location bucket=$CODEDEPLOY_BUCKETNAME,key=appspec.yml,bundleType=YAML --deployment-group-name $CODEDEPLOY_GROUPNAME --description "cicd deploy lambda" --profile circleci --debug
